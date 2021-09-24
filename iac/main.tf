@@ -22,10 +22,10 @@ module "cognito_user_pool" {
   name = "poc-users-cognito-tmp"
 
   # We allow the public to create user profiles
-  allow_admin_create_user_only = true
+  allow_admin_create_user_only = false
 
   enable_username_case_sensitivity = false
-  advanced_security_mode           = "ENFORCED"
+  advanced_security_mode           = "OFF"
 
   alias_attributes = [
     "email",
@@ -69,14 +69,14 @@ module "cognito_user_pool" {
   # email_source_arn       = "arn:aws:ses:us-east-1:999999999999:identity"
 
   # Require MFA
-  mfa_configuration        = "ON"
+  mfa_configuration        = "OPTIONAL"
   allow_software_mfa_token = true
 
-  password_minimum_length    = 40
-  password_require_lowercase = true
-  password_require_numbers   = true
-  password_require_uppercase = true
-  password_require_symbols   = true
+  password_minimum_length    = 8
+  password_require_lowercase = false
+  password_require_numbers   = false
+  password_require_uppercase = false
+  password_require_symbols   = false
 
   temporary_password_validity_days = 3
 
