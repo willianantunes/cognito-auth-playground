@@ -50,6 +50,11 @@ Sample output:
 }
 ```
 
+### Terrible things I noticed
+
+- English in the only supported language for the Cognito UI. [No i18n still](https://forums.aws.amazon.com/thread.jspa?threadID=301920&start=25&tstart=0). 
+- Once you create an attribute, you aren't able to delete it. You should create another user pool, and then migrate.
+
 ## Links
 
 Projects:
