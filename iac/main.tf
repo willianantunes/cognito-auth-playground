@@ -80,51 +80,45 @@ module "cognito_user_pool" {
 
   temporary_password_validity_days = 3
 
+  # https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-settings-attributes.html
+  # https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-settings-attributes.html#user-pool-settings-aliases
+  # Developers can use the preferred_username attribute to give users a username that they can change. For more information, see Overview of Aliases.
   schema_attributes = [
     {
-      name       = "gender", # overwrites the default attribute 'gender'
+      # overwrites the default attribute 'email'
+      name       = "email",
       type       = "String"
       required   = true
-      min_length = 1
-      max_length = 2048
+      min_length = 5
+      max_length = 320
     },
     {
-      name                     = "alternative_name"
-      type                     = "String"
-      developer_only_attribute = false,
-      mutable                  = true,
-      required                 = false,
-      min_length               = 0,
-      max_length               = 2048
-    },
-    {
-      name      = "friends_count"
-      type      = "Number"
-      min_value = 0,
-      max_value = 100
+      # overwrites the default attribute 'name'
+      name       = "name",
+      type       = "String"
+      required   = true
+      min_length = 3
+      max_length = 70
     },
     {
       name = "is_active"
       type = "Boolean"
 
     },
-    {
-      name = "last_seen"
-      type = "DateTime"
-    }
   ]
 
   clients = [
     {
-      name                         = "poc-djangoclient-appclientcognito-tmp"
-      supported_identity_providers = ["COGNITO"]
-      read_attributes              = ["email", "email_verified", "preferred_username"]
-      allowed_oauth_scopes         = ["email", "openid"]
-      allowed_oauth_flows          = ["code"]
-      callback_urls                = ["http://localhost:8000/api/v1/response-oidc"]
-      default_redirect_uri         = "http://localhost:8000/api/v1/response-oidc"
+      name                                 = "poc-djangoclient-appclientcognito-tmp"
+      supported_identity_providers         = ["COGNITO"]
+      read_attributes                      = ["name", "email", "email_verified", "preferred_username"]
+      allowed_oauth_scopes                 = ["email", "openid"]
+      allowed_oauth_flows                  = ["code"]
+      logout_urls                          = ["http://localhost:8000/logout"]
+      callback_urls                        = ["http://localhost:8000/api/v1/response-oidc"]
+      default_redirect_uri                 = "http://localhost:8000/api/v1/response-oidc"
       allowed_oauth_flows_user_pool_client = true
-      generate_secret              = true
+      generate_secret                      = true
     }
   ]
 

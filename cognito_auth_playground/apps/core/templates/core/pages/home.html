@@ -1,0 +1,15 @@
+{% extends "core/templates/base.html" %}
+
+{% block content %}
+
+    <main>
+        <h2>Here's the home page!</h2>
+        {% if 'user' in request.session %}
+            <p>You are <strong>{{ request.session.user.email }}</strong>!</p>
+        {% endif %}
+        {% if 'user' not in request.session %}
+            <p>I know nothing about you. Log in first!</p>
+        {% endif %}
+    </main>
+
+{% endblock %}
