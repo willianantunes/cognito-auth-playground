@@ -49,7 +49,7 @@ module "cognito_user_pool" {
   ]
 
   # If invited by an admin
-  invite_email_subject = "You've been invited to Mineiros.io"
+  invite_email_subject = "You've been invited to Agrabah"
   invite_email_message = "Hi {username}, your temporary password is '{####}'."
   invite_sms_message   = "Hi {username}, your temporary password is '{####}'."
 
@@ -64,8 +64,8 @@ module "cognito_user_pool" {
 
   # These paramters can be used to configure SES for emails
   # email_sending_account  = "DEVELOPER"
-  # email_reply_to_address = "support@mineiros.io"
-  # email_from_address     = "noreply@mineiros.io"
+  # email_reply_to_address = "support@agrabah.io"
+  # email_from_address     = "noreply@agrabah.io"
   # email_source_arn       = "arn:aws:ses:us-east-1:999999999999:identity"
 
   # Require MFA
@@ -116,17 +116,19 @@ module "cognito_user_pool" {
 
   clients = [
     {
-      name                 = "android-mobile-client"
-      read_attributes      = ["email", "email_verified", "preferred_username"]
-      allowed_oauth_scopes = ["email", "openid"]
-      allowed_oauth_flows  = ["implicit"]
-      callback_urls        = ["https://mineiros.io/callback", "https://mineiros.io/anothercallback"]
-      default_redirect_uri = "https://mineiros.io/callback"
-      generate_secret      = true
+      name                         = "poc-djangoclient-appclientcognito-tmp"
+      supported_identity_providers = ["COGNITO"]
+      read_attributes              = ["email", "email_verified", "preferred_username"]
+      allowed_oauth_scopes         = ["email", "openid"]
+      allowed_oauth_flows          = ["code"]
+      callback_urls                = ["http://localhost:8000/api/v1/response-oidc"]
+      default_redirect_uri         = "http://localhost:8000/api/v1/response-oidc"
+      allowed_oauth_flows_user_pool_client = true
+      generate_secret              = true
     }
   ]
 
   tags = {
-    environment = "Dev"
+    environment = "poc"
   }
 }

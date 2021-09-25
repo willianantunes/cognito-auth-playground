@@ -9,6 +9,7 @@ output "clients" {
 }
 
 output "client_secrets" {
+  # To retrieve it: terraform output client_secrets
   description = "The secrets of all created Cognito User Pool Client resources."
   value       = module.cognito_user_pool.client_secrets
   sensitive   = true
