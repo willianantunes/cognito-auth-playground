@@ -55,6 +55,15 @@ Sample output:
 - English in the only supported language for the Cognito UI. [No i18n still](https://forums.aws.amazon.com/thread.jspa?threadID=301920&start=25&tstart=0). 
 - Once you create an attribute, you aren't able to delete it. You should create another user pool, and then migrate.
 
+### Configuring your Django App
+
+In order to run your application, you must configure `AWS_COGNITO_USER_POOL_ID`, `AWS_COGNITO_APP_CLIENT_ID`, `AWS_COGNITO_APP_CLIENT_SECRET` in your `settings.py`. After you create your environment with Terraform, you can run the following command to get the values necessary to configure them:
+
+```shell
+terraform output -json | jq '.user_pool.value.user_pool.id,.user_pool.value.clients[].id' && \
+terraform output -json client_secrets | jq '.["poc-djangoclient-appclientcognito-tmp"]'
+```
+
 ## Links
 
 Projects:
