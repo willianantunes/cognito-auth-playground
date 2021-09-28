@@ -54,6 +54,7 @@ Sample output:
 
 - English in the only supported language for the Cognito UI. [No i18n still](https://forums.aws.amazon.com/thread.jspa?threadID=301920&start=25&tstart=0). 
 - Once you create an attribute, you aren't able to delete it. You should create another user pool, and then migrate.
+- There is no standard way to implement [Authorization Code flow without using the hosted UI](https://forums.aws.amazon.com/thread.jspa?messageID=832982#832982). It seems this is an open requirement since the beginning of 2018. There is also a [post on StackOverflow](https://stackoverflow.com/questions/59760537/aws-cognito-authorization-code-grant-flow-without-using-the-hosted-ui-in-2020) about it.
 
 ### Configuring your Django App
 
