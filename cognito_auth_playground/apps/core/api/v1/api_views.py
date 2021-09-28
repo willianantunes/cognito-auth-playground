@@ -8,9 +8,8 @@ from rest_framework.response import Response
 
 from cognito_auth_playground.apps.core.api.api_exception import ContractNotRespectedException
 from cognito_auth_playground.apps.core.services.cognito_user_pool import CognitoUserPool
-from cognito_auth_playground.settings import AWS_COGNITO_APP_CLIENT_ID
+from cognito_auth_playground.apps.core.services.cognito_user_pool import TokensBoundToSomeUser
 from cognito_auth_playground.settings import AWS_COGNITO_APP_CLIENT_SECRET
-from cognito_auth_playground.settings import AWS_COGNITO_APP_SCOPES
 
 logger = logging.getLogger(__name__)
 
@@ -43,3 +42,10 @@ def handle_response_oidc(request: Request) -> Response:
     request.session["tokens"] = tokens
     location_index = reverse("index")
     return redirect(location_index)
+
+
+@api_view(["GET"])
+def retrieve_user_info(request: Request) -> Response:
+    tokens: TokensBoundToSomeUser = request.session.get("tokens")
+    result = CognitoUserPool.get_user_info(tokens["access_token"])
+    return Response(data=result)

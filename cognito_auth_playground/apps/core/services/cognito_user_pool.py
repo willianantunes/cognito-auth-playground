@@ -162,7 +162,6 @@ class CognitoUserPool:
     ) -> Tuple[TokensBoundToSomeUser, Claims]:
         # https://docs.aws.amazon.com/cognito/latest/developerguide/token-endpoint.html
         token_endpoint = cls.oidc_configuration_document.token_endpoint
-        auth_url = cls.oidc_configuration_document.authorization_endpoint
         app_credentials = f"{client_id}:{client_secret}"
         app_credentials_encoded = b64encode(app_credentials.encode()).decode()
         headers = {
@@ -180,3 +179,23 @@ class CognitoUserPool:
         content: TokensBoundToSomeUser = response.json()
         claims = cls.retrieve_claims_otherwise_raise_exception_if_token_is_invalid(content["id_token"])
         return content, claims
+
+    @classmethod
+    def get_user_info(cls, access_token) -> dict:
+        # https://docs.aws.amazon.com/cognito/latest/developerguide/userinfo-endpoint.html
+        userinfo_endpoint = cls.oidc_configuration_document.userinfo_endpoint
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {access_token}",
+        }
+        result = requests.get(userinfo_endpoint, headers=headers)
+        # Sample result
+        # {
+        #     "sub": "bbf338b6-fa67-4b91-baaf-24886a31b3d6",
+        #     "email_verified": "true",
+        #     "email": "willianlimaantunes@gmail.com",
+        #     "username": "willian",
+        # }
+        body = result.json()
+
+        return body

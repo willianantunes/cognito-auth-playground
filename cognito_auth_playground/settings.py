@@ -167,4 +167,4 @@ CognitoUserPool.configure_oidc_configuration_document(AWS_COGNITO_OPENID_CONFIGU
 
 AWS_COGNITO_APP_CLIENT_ID = "5rf91muug3p74k1dnn1lim071o"
 AWS_COGNITO_APP_CLIENT_SECRET = "vtd9bsdm3l9nuu56bhhv55g93idhmk2p64miufrq54j05ecgu31"
-AWS_COGNITO_APP_SCOPES = ["email", "openid"]
+AWS_COGNITO_APP_SCOPES = ["openid"]
