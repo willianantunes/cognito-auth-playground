@@ -112,7 +112,7 @@ module "cognito_user_pool" {
       name                                 = "poc-djangoclient-appclientcognito-tmp"
       supported_identity_providers         = ["COGNITO"]
       read_attributes                      = ["name", "email", "email_verified", "preferred_username"]
-      allowed_oauth_scopes                 = ["email", "openid"]
+      allowed_oauth_scopes                 = ["email", "openid", "profile"]
       allowed_oauth_flows                  = ["code"]
       logout_urls                          = ["http://localhost:8000/logout"]
       callback_urls                        = ["http://localhost:8000/api/v1/response-oidc"]
