@@ -14,6 +14,70 @@ provider "aws" {
   region  = "us-east-1"
 }
 
+#############################################################################
+#############################################################################
+
+locals {
+  users = [
+    {
+      name                 = "poc-cognito-custom-ui-api"
+      path                 = "/"
+      permissions_boundary = ""
+      managed_policies = [
+        {
+          arn  = "arn:aws:iam::aws:policy/AmazonCognitoPowerUser"
+          name = "AmazonCognitoPowerUser"
+        },
+      ]
+      custom_policies = []
+      inline_policies = []
+      groups = [
+        "service-accounts",
+      ]
+      tags            = {}
+      need_password   = false
+      need_access_key = true
+    },
+  ]
+}
+
+#############################################################################
+#############################################################################
+
+module "iam_policies" {
+  source = "./shared/iam/policies"
+
+  policies = []
+}
+
+module "iam_groups" {
+  source = "./shared/iam/groups"
+
+  groups = [
+    {
+      name             = "service-accounts"
+      path             = "/"
+      managed_policies = []
+      custom_policies  = []
+      inline_policies  = []
+    },
+  ]
+  policies = module.iam_policies.policies
+
+  depends_on = [module.iam_policies]
+}
+
+module "iam_users" {
+  source = "./shared/iam/users"
+
+  for_each        = { for user in local.users : user.name => user }
+  user            = each.value
+  policies        = module.iam_policies.policies
+  default_pgp_key = var.pgp_key
+
+  depends_on = [module.iam_policies, module.iam_groups]
+}
+
 # Know more at: https://github.com/mineiros-io/terraform-aws-cognito-user-pool/blob/0ba192ca3af987887da092ee268af0981924dbae/examples/complete/main.tf
 module "cognito_user_pool" {
   source  = "mineiros-io/cognito-user-pool/aws"
@@ -27,15 +91,22 @@ module "cognito_user_pool" {
   enable_username_case_sensitivity = false
   advanced_security_mode           = "OFF"
 
+  # https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-settings-attributes.html#user-pool-settings-aliases
+  # You can allow your end users to sign in with multiple identifiers by using aliases.
+  # Alias values must be unique in a user pool.
   alias_attributes = [
-    "email",
-    "phone_number",
+    # Actually I'll use email as the username; thus I do not need to use it as an alias
+    # "email",
+    # "phone_number",
+    # The preferred_username cannot be selected as both required and as an alias.
+    # If the preferred_username is an alias, a user can add the attribute value once he or she is confirmed by using the UpdateUserAttributes API.
     "preferred_username",
   ]
 
-  auto_verified_attributes = [
-    "email"
-  ]
+  # This one can be incorporated internally with a custom provider, not using Cognito one
+  #  auto_verified_attributes = [
+  #    "email"
+  #  ]
 
   account_recovery_mechanisms = [
     {

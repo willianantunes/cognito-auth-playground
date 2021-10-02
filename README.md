@@ -61,8 +61,8 @@ Sample output:
 In order to run your application, you must configure `AWS_COGNITO_USER_POOL_ID`, `AWS_COGNITO_APP_CLIENT_ID`, `AWS_COGNITO_APP_CLIENT_SECRET` in your `settings.py`. After you create your environment with Terraform, you can run the following command to get the values necessary to configure them:
 
 ```shell
-terraform output -json | jq '.user_pool.value.user_pool.id,.user_pool.value.clients[].id' && \
-terraform output -json client_secrets | jq '.["poc-djangoclient-appclientcognito-tmp"]'
+terraform output -json cognito_user_pool | jq '.user_pool.id,.clients["poc-djangoclient-appclientcognito-tmp"].id' && \
+terraform output -json cognito_client_secrets | jq '.["poc-djangoclient-appclientcognito-tmp"]'
 ```
 
 ## Links
@@ -76,3 +76,4 @@ Articles:
 - [How can I decode and verify the signature of an Amazon Cognito JSON Web Token?](https://aws.amazon.com/premiumsupport/knowledge-center/decode-verify-cognito-json-token/)
 - [Machine to Machine Authentication with Cognito and Serverless](https://aws-blog.de/2020/01/machine-to-machine-authentication-with-cognito-and-serverless.html)
 - [Decode and verify Amazon Cognito JWT tokens](https://github.com/awslabs/aws-support-tools/blob/f8aba4d90a14301c639859877b85e6335d51dbad/Cognito/decode-verify-jwt/README.md)
+- [Cognito: User Pool; authenticating with username and password](https://cloudbyexample.io/part-2-aws-cognito-user-pool-authenticating-with-username-and-password/)
