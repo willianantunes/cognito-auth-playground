@@ -1,0 +1,26 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+django = "*"
+djangorestframework = "*"
+boto3 = "*"
+python-jose = "*"
+requests = "*"
+
+[dev-packages]
+boto3-stubs = {extras = ["cognito-idp"], version = "*"}
+pytest-django = "*"
+pytest-mock = "*"
+pytest-cov = "*"
+black = "*"
+isort = "*"
+mypy = "*"
+
+[requires]
+python_version = "3.9"
+
+[pipenv]
+allow_prereleases = true
