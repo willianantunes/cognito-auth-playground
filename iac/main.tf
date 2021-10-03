@@ -14,8 +14,9 @@ provider "aws" {
   region  = "us-east-1"
 }
 
-#############################################################################
-#############################################################################
+# ---------------------------------------------------------------------------------------------------------------------
+# STUFF NEEDED SUCH AS LOCAL VARIABLES
+# ---------------------------------------------------------------------------------------------------------------------
 
 locals {
   users = [
@@ -41,8 +42,9 @@ locals {
   ]
 }
 
-#############################################################################
-#############################################################################
+# ---------------------------------------------------------------------------------------------------------------------
+# IAM
+# ---------------------------------------------------------------------------------------------------------------------
 
 module "iam_policies" {
   source = "./shared/iam/policies"
@@ -77,6 +79,44 @@ module "iam_users" {
 
   depends_on = [module.iam_policies, module.iam_groups]
 }
+
+# ---------------------------------------------------------------------------------------------------------------------
+# CREATE LAMBDAS TO HANDLE COGNITO EVENTS
+# ---------------------------------------------------------------------------------------------------------------------
+
+module "create_auth_challenge_event" {
+  source = "./shared/lambda/cognito_events"
+
+  name = "poc-createauthchallengecognito-lambda-tmp"
+
+  source_dir = "${path.module}/../cognito_custom_ui_and_api/lambdas"
+  runtime    = "python3.9"
+  handler    = "create_auth_challenge.lambda_handler"
+}
+
+module "define_auth_challenge_event" {
+  source = "./shared/lambda/cognito_events"
+
+  name = "poc-defineauthchallengecognito-lambda-tmp"
+
+  source_dir = "${path.module}/../cognito_custom_ui_and_api/lambdas"
+  runtime    = "python3.9"
+  handler    = "define_auth_challenge.lambda_handler"
+}
+
+module "verify_auth_challenge_event" {
+  source = "./shared/lambda/cognito_events"
+
+  name = "poc-verifyauthchallengecognito-lambda-tmp"
+
+  source_dir = "${path.module}/../cognito_custom_ui_and_api/lambdas"
+  runtime    = "python3.9"
+  handler    = "verify_auth_challenge.lambda_handler"
+}
+
+# ---------------------------------------------------------------------------------------------------------------------
+# COGNITO ITSELF
+# ---------------------------------------------------------------------------------------------------------------------
 
 # Know more at: https://github.com/mineiros-io/terraform-aws-cognito-user-pool/blob/0ba192ca3af987887da092ee268af0981924dbae/examples/complete/main.tf
 module "cognito_user_pool" {
@@ -193,7 +233,13 @@ module "cognito_user_pool" {
     }
   ]
 
+  lambda_create_auth_challenge          = module.create_auth_challenge_event.function_arn
+  lambda_define_auth_challenge          = module.define_auth_challenge_event.function_arn
+  lambda_verify_auth_challenge_response = module.verify_auth_challenge_event.function_arn
+
   tags = {
     environment = "poc"
   }
+
+  depends_on = [module.create_auth_challenge_event, module.define_auth_challenge_event, module.verify_auth_challenge_event]
 }

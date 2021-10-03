@@ -5,7 +5,6 @@ import logging
 
 from dataclasses import dataclass
 from datetime import datetime
-from enum import Enum
 from typing import Dict
 from typing import List
 from typing import Literal
@@ -39,6 +38,24 @@ class UserDetails:
     updated_at: datetime
     enabled: bool
     status: str
+
+
+@dataclass(frozen=True)
+class AppClientDetails:
+    id: str
+    secret: str
+    name: str
+    created_at: datetime
+    updated_at: datetime
+    refresh_token_validity: int
+    read_attributes: List[str]
+    supported_identity_providers: List[str]
+    callback_urls: List[str]
+    logout_urls: List[str]
+    allowed_oauth_flows: List[str]
+    allowed_oauth_scopes: List[str]
+    allowed_oauth_flows_user_pool_client: bool
+    enable_token_revocation: bool
 
 
 GrantType = Literal["ropc", "code"]
@@ -101,7 +118,7 @@ class CognitoUserPool:
                 raise NotImplementedError
         return None
 
-    def delete_user(self, username: str):
+    def delete_user(self, username: str) -> None:
         # https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/cognito-idp.html#CognitoIdentityProvider.Client.admin_delete_user
         self.client.admin_delete_user(UserPoolId=self.user_pool_id, Username=username)
 
@@ -124,16 +141,52 @@ class CognitoUserPool:
         return users, response_as_json.get("PaginationToken")
 
     def authenticate(self, username: str, password: str, grant_type: GrantType = "ropc"):
+        secret_hash = self._generete_secret_hash(username)
+
         if grant_type == "ropc":
             auth_parameters = {"USERNAME": username, "PASSWORD": password}
             response_as_json = self.client.initiate_auth(
                 ClientId=self.app_client_id, AuthFlow="USER_PASSWORD_AUTH", AuthParameters=auth_parameters
             )
+            print(response_as_json)
         elif grant_type == "code":
-            pass
+            auth_parameters = {"USERNAME": username, "SECRET_HASH": secret_hash}
+            try:
+                response_as_json = self.client.initiate_auth(
+                    ClientId=self.app_client_id, AuthFlow="CUSTOM_AUTH", AuthParameters=auth_parameters
+                )
+                print(response_as_json)
+            except Exception as e:
+                raise e
         else:
             raise NotImplementedError
         raise NotImplementedError
+
+    def retrieve_user_pool_client(self, client_id: str) -> Optional[AppClientDetails]:
+        try:
+            response_as_json = self.client.describe_user_pool_client(UserPoolId=self.user_pool_id, ClientId=client_id)
+            user_pool_client = response_as_json["UserPoolClient"]
+            constructor_dict = {
+                "id": user_pool_client["UserPoolId"],
+                "secret": user_pool_client["ClientSecret"],
+                "name": user_pool_client["ClientName"],
+                "created_at": user_pool_client["CreationDate"],
+                "updated_at": user_pool_client["LastModifiedDate"],
+                "refresh_token_validity": user_pool_client["RefreshTokenValidity"],
+                "read_attributes": user_pool_client["ReadAttributes"],
+                "supported_identity_providers": user_pool_client["SupportedIdentityProviders"],
+                "callback_urls": user_pool_client["CallbackURLs"],
+                "logout_urls": user_pool_client["LogoutURLs"],
+                "allowed_oauth_flows": user_pool_client["AllowedOAuthFlows"],
+                "allowed_oauth_scopes": user_pool_client["AllowedOAuthScopes"],
+                "allowed_oauth_flows_user_pool_client": user_pool_client["AllowedOAuthFlowsUserPoolClient"],
+                "enable_token_revocation": user_pool_client["EnableTokenRevocation"],
+            }
+            return AppClientDetails(**constructor_dict)
+        except botocore.exceptions.ClientError as e:
+            if e.response["Error"]["Code"] != "ResourceNotFoundException":
+                raise NotImplementedError
+        return None
 
     def _generete_secret_hash(self, username: str) -> str:
         # https://aws.amazon.com/premiumsupport/knowledge-center/cognito-unable-to-verify-secret-hash/

@@ -85,6 +85,7 @@ d0nySO5HPDRGTb+Bc4+Nt/d5qxQkXFHBfoluVgV1
 Projects:
 
 - [terraform-aws-cognito-user-pool](https://github.com/mineiros-io/terraform-aws-cognito-user-pool)
+- [AWS Amplify Identity Broker](https://github.com/awslabs/aws-amplify-identity-broker)
 
 Articles:
 
