@@ -58,11 +58,26 @@ Sample output:
 
 ### Configuring your Django App
 
-In order to run your application, you must configure `AWS_COGNITO_USER_POOL_ID`, `AWS_COGNITO_APP_CLIENT_ID`, `AWS_COGNITO_APP_CLIENT_SECRET` in your `settings.py`. After you create your environment with Terraform, you can run the following command to get the values necessary to configure them:
+In order to run your application, you must configure `AWS_COGNITO_USER_POOL_ID`, `AWS_COGNITO_APP_CLIENT_ID`, `AWS_COGNITO_APP_CLIENT_SECRET`, `AWS_COGNITO_SERVICE_ACCOUNT_ACCESS_KEY`, and `AWS_COGNITO_SERVICE_ACCOUNT_ACCESS_SECRET` in your `settings.py`. After you create your environment with Terraform, you can run the following command to get the necessary values to configure them:
 
 ```shell
-terraform output -json cognito_user_pool | jq '.user_pool.id,.clients["poc-djangoclient-appclientcognito-tmp"].id' && \
-terraform output -json cognito_client_secrets | jq '.["poc-djangoclient-appclientcognito-tmp"]'
+terraform output -json cognito_user_pool | jq '.user_pool.id' && \
+terraform output -json cognito_clients | jq '.["poc-djangoclient-appclientcognito-tmp"].id' && \
+terraform output -json cognito_client_secrets | jq '.["poc-djangoclient-appclientcognito-tmp"]' && \
+terraform output -json iam_encrypted_access_keys | jq '.["poc-cognito-custom-ui-api"].access_key' && \
+terraform output -json iam_encrypted_access_keys | jq '.["poc-cognito-custom-ui-api"].encrypted_secret' | sed 's/ //g' | sed 's/"//g' | base64 -d | gpg -d
+```
+
+Sample output:
+
+```
+"us-east-1_i8wbmVkhK"
+"47302u6uq1g71ocb5dgq1bmbng"
+"1lcqfd577c838s9n534lc6l5uggu27gtcat3617oi6dl0ge5pkll"
+"AKIAXAQEEUDOLC3JLH3W"
+gpg: encrypted with 3072-bit RSA key, ID BA9D0B22FE40F77D, created 2021-10-02
+      "gandalf"
+d0nySO5HPDRGTb+Bc4+Nt/d5qxQkXFHBfoluVgV1
 ```
 
 ## Links

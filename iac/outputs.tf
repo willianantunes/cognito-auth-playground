@@ -1,5 +1,5 @@
 output "cognito_user_pool" {
-  # terraform output -json cognito_user_pool | jq '.user_pool.id,.clients["poc-djangoclient-appclientcognito-tmp"].id'
+  # terraform output -json cognito_user_pool | jq '.user_pool.id'
   description = "All outputs exposed by the module."
   value       = merge(module.cognito_user_pool, { client_secrets = null })
 }
